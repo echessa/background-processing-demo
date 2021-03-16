@@ -8,13 +8,13 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.CompoundButton;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     private AlarmManager manager;
     private PendingIntent pendingIntent;
     private static final int REQ_CODE = 0;
+    private String switchText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,27 +27,27 @@ public class MainActivity extends AppCompatActivity {
 
         boolean alarmOn = (PendingIntent.getBroadcast(this, REQ_CODE, alarmIntent, PendingIntent.FLAG_NO_CREATE) != null);
         alarmSwitch.setChecked(alarmOn);
+        switchText = alarmOn ? "Alarm On" : "Alarm Off";
+        alarmSwitch.setText(switchText);
 
         manager = (AlarmManager)getSystemService(ALARM_SERVICE);
 
         alarmSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                String message;
                 if (isChecked) {
                     pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), REQ_CODE, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                     manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 60000, pendingIntent);
-                    message = "Alarm On";
+                    switchText = "Alarm On";
                 } else {
                     if (pendingIntent == null) {
                         pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), REQ_CODE, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                     }
                     manager.cancel(pendingIntent);
                     pendingIntent.cancel();
-                    message = "Alarm Off";
+                    switchText = "Alarm Off";
                 }
-                // Show a toast with message.
-                Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                buttonView.setText(switchText);
             }
         });
     }
